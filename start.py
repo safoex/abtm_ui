@@ -169,7 +169,7 @@ class ABTMApp:
             self.builder.get_object('choosed-file').set_text(dlg.get_filename())
         dlg.destroy()
 
-    def setup_all(self, icon="../abtm/abtm.png"):
+    def setup_all(self, icon="abtm/abtm.png"):
         self.build_gtk()
         self.setup_ros()
         self.setup_buttons()
