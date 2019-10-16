@@ -165,7 +165,7 @@ class DotCoder:
 
             if len(children) > 0:
                 new_names += self.tree[name][children]
-        print(new_names)
+
         if len(new_names) > 0:
             code += self.rec_make_ranks(new_names, tabscount)
 

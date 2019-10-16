@@ -2,12 +2,6 @@ import gi
 gi.require_version('Gtk', '3.0')
 
 from gi.repository import Gtk
-class Handler:
-    def onDeleteWindow(self, *args):
-        Gtk.main_quit(*args)
-
-    def onButtonPressed(self, button):
-        print("Hello World!")
 
 
 import xdot
@@ -55,7 +49,6 @@ class ABTMApp:
     def build_gtk(self):
         self.builder = Gtk.Builder()
         self.builder.add_from_file(self.glade_file)
-        self.builder.connect_signals(Handler())
         self.window = self.builder.get_object("window")
         self.window.connect('destroy', Gtk.main_quit)
         self.window.set_default_size(600, 500)
@@ -77,7 +70,6 @@ class ABTMApp:
         return tab_box
 
     def setup_ros(self):
-        print(self.rosparams)
         self.ros = roslibpy.Ros(host=self.rosparams['host'], port=self.rosparams['port'])
         self.ros.run()
         self.tree_description_listener = roslibpy.Topic(self.ros, '/abtm/yaml_tree_description', 'std_msgs/String')
