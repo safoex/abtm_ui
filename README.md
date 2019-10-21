@@ -10,7 +10,7 @@ xdot `pip3 install xdot`
 
 ruamel `pip3 install ruamel.yaml`
 
-roslibpy 
+roslibpy `pip3 install roslibpy`
 
 ## don't forget to run 
 `roslaunch rosbridge_server rosbridge_websocket.launch`
