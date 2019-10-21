@@ -51,7 +51,7 @@ class ABTMApp:
         self.builder.add_from_file(self.glade_file)
         self.window = self.builder.get_object("window")
         self.window.connect('destroy', Gtk.main_quit)
-        self.window.set_default_size(600, 500)
+        self.window.set_default_size(900, 800)
         self.window.set_title('A-B-T-M')
         self.tree_widget = ABTMDotWidget()
         self.memory_widget = abtm.json_viewer.JSONViewerBox()

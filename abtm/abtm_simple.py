@@ -15,7 +15,7 @@ class DotCoder:
             'selector' : 'white',
             'parallel' : 'white',
             'template' : '#9262d1',
-            'expanded' : 'yellow'
+            'expanded' : '#fde910'
         }
 
         self.hat_types = {
@@ -197,7 +197,10 @@ class DotCoder:
             color = ""
             hat = ""
             if type == 'action' or type == 'condition':
-                desc = html.escape(node['expr'])
+                desc = str(node['expr'])
+                desc = desc.replace(';', ';!@')
+                desc = html.escape(desc)
+                desc = desc.replace(';!@', ';<br/>')
             elif type[:2] == 't/' or type[:9] == 'template/':
                 desc = type
                 if 'view' in node:
@@ -214,21 +217,16 @@ class DotCoder:
                     hat = self.hat_types['template']
             else:
                 color = self.color_types[type]
+                if name in self.expanded:
+                    color = self.color_types['expanded']
 
+            if type in self.hat_types:
+                hat = self.hat_types[type]
 
             fontcolor = 'black'
             if runtime and type == 'condition':
                 fontcolor = 'red'
 
-            gv_node_name = '\"'
-            if type in self.hat_types:
-                hat = self.hat_types[type]
-            if len(hat) > 0:
-                gv_node_name += hat + '\\n'
-            gv_node_name += name
-            if len(desc) > 0:
-                gv_node_name += '\\n' + desc
-            gv_node_name += '\"'
 
             node_name = '\"' + name + '\"'
 
