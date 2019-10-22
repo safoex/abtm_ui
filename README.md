@@ -8,8 +8,9 @@ PyGTK 3.0 (PyGObject) https://pygobject.readthedocs.io/en/latest/getting_started
 
 xdot `pip3 install xdot`
 
-ruamel `pip3 install ruamel`
+ruamel `pip3 install ruamel.yaml`
 
-roslibpy 
+roslibpy `pip3 install roslibpy`
 
-## don't forget to run `roslaunch rosbridge_server rosbridge_websocket.launch`
+## don't forget to run 
+`roslaunch rosbridge_server rosbridge_websocket.launch`
