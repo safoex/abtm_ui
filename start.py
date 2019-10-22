@@ -41,7 +41,7 @@ class ABTMDotWidget(xdot.DotWidget):
 class ABTMApp:
     def __init__(self, rosparams = None, glade_file = None):
         self.rosparams = rosparams or {'host': 'localhost', 'port': 9090}
-        self.glade_file = glade_file or "/home/safoex/Documents/glade_works/abtm/abtm.glade"
+        self.glade_file = glade_file or "abtm/abtm.glade"
         self.vars = {}
         self.mutex = Lock()
         self.is_now_correct = False
