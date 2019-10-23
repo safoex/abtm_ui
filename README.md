@@ -14,3 +14,5 @@ roslibpy `pip3 install roslibpy`
 
 ## don't forget to run 
 `roslaunch rosbridge_server rosbridge_websocket.launch`
+
+`python3 start.py`
