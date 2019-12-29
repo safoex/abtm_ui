@@ -9,4 +9,4 @@ if __name__ == '__main__':
     time.sleep(0.1)
     app.request_tree()
 
-    app.main()
+    app.run()

@@ -164,6 +164,6 @@ class ABTMApp:
     def set_icon(self, icon_path):
         self.window.set_icon_from_file(icon_path)
 
-    def main(self):
+    def run(self):
         self.window.show_all()
-        Gtk.main()
+        Gtk.run()
