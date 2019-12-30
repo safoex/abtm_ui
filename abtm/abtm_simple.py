@@ -88,10 +88,22 @@ class DotCoder:
             n = y.get('nodes')
         else:
             n = y
+        return self.tree_from_dict(n)
+
+    def tree_from_dict(self, py_nodes):
+        n = py_nodes
         for z in n:
             self.tree[z] = n[z]
             self.states[z] = 3
         self.root = self.get_root()
+
+    def tree_from_nodes(self, nodes_description):
+        if isinstance(nodes_description, dict):
+            return self.tree_from_dict(nodes_description)
+        elif isinstance(nodes_description, str):
+            return self.tree_from_yaml(nodes_description)
+        else:
+            return None
 
     def expand_templated_node(self, node):
         if node in self.tree:

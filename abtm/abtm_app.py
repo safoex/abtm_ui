@@ -97,7 +97,7 @@ class ABTMApp:
     def on_tree(self, message):
         with self.mutex:
             self.is_now_correct = True
-            self.tree_widget.dc.tree_from_yaml(message['data'])
+            self.tree_widget.dc.tree_from_nodes(message['data'])
             self.tree_widget.set_dotcode(bytes(self.tree_widget.dc.get_dotcode(), 'utf-8'))
             self.ex_image_widget.set_from_stock(Gtk.STOCK_APPLY, Gtk.IconSize.LARGE_TOOLBAR)
             self.ex_text_widget.set_text('ready')
@@ -166,4 +166,4 @@ class ABTMApp:
 
     def run(self):
         self.window.show_all()
-        Gtk.run()
+        Gtk.main()
