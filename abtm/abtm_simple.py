@@ -107,27 +107,48 @@ class DotCoder:
 
     def expand_templated_node(self, node):
         if node in self.tree:
-            self.expanded[node] = self.tree[node]['view_children']
-            if 'children' in self.tree[node]:
-                self.tree[node]['view_children'] = self.tree[node]['children']
-            else:
-                self.tree[node]['view_children'] = []
+            if 'view_children' in self.tree[node]:
+                self.expanded[node] = self.tree[node]['view_children']
+                if 'children' in self.tree[node]:
+                    self.tree[node]['view_children'] = self.tree[node]['children']
+                else:
+                    self.tree[node]['view_children'] = []
+            if 'view' in self.tree[node]:
+                if 'children' not in self.tree[node]['view']:
+                    self.tree[node]['view']['children'] = []
+                self.expanded[node] = self.tree[node]['view']['children']
+                if 'children' not in self.tree[node]:
+                    self.tree[node]['children'] = []
+                self.tree[node]['view']['children'] = self.tree[node]['children']
 
     def hide_templated_node(self, node):
         if node in self.tree:
-            self.tree[node]['view_children'] = self.expanded[node]
-            self.expanded.pop(node)
+            if 'view_children' in self.tree[node]:
+                self.tree[node]['view_children'] = self.expanded[node]
+            if 'view' in self.tree[node]:
+                self.tree[node]['view']['children'] = self.expanded[node]
+        self.expanded.pop(node)
 
     def get_children_keyword(self, name):
         children = ""
-        print(name)
-        print(self.tree[name])
         if 'view_children' in self.tree[name] and not (self.tree[name]['view_children'] is None) and len(
                 self.tree[name]['view_children']) > 0:
             children = 'view_children'
         if 'view_children' not in self.tree[name] and 'children' in self.tree[name] and not (
                 self.tree[name]['children'] is None) and len(self.tree[name]['children']) > 0:
             children = 'children'
+        return children
+
+    def get_children(self, name):
+        children = []
+        if 'view' in self.tree[name] and 'children' in self.tree[name]['view']:
+            return self.tree[name]['view']['children']
+        if 'view_children' in self.tree[name] and not (self.tree[name]['view_children'] is None) and len(
+                self.tree[name]['view_children']) > 0:
+            children = self.tree[name]['view_children']
+        if 'view_children' not in self.tree[name] and 'children' in self.tree[name] and not (
+                self.tree[name]['children'] is None) and len(self.tree[name]['children']) > 0:
+            children = self.tree[name]['children']
         return children
 
     def get_next_cluster_name(self):
@@ -139,7 +160,7 @@ class DotCoder:
 
     def rec_make_clusters(self, name, tabscount=0):
         code = ""
-        children = self.get_children_keyword(name)
+        children = self.get_children(name)
 
         if len(children) > 0:
             code += '\t' * tabscount + self.get_next_cluster_name() + " {\n"
@@ -151,7 +172,7 @@ class DotCoder:
         code += '\t' * (tabscount + extra_tab) + self.node_dotcodes[name]
 
         if len(children) > 0:
-            for child in self.tree[name][children]:
+            for child in children:
                 code += self.rec_make_clusters(child, tabscount + 1)
 
         if len(children) > 0:
@@ -161,12 +182,12 @@ class DotCoder:
 
     def rec_make_edges(self, name, tabscount=0):
         code = ""
-        children = self.get_children_keyword(name)
+        children = self.get_children(name)
 
         if len(children) > 0:
-            for child in self.tree[name][children]:
+            for child in children:
                 code += '\t' * tabscount + '\"' + name + '\" -> \"' + child + "\";\n"
-            for child in self.tree[name][children]:
+            for child in children:
                 code += self.rec_make_edges(child, tabscount + 1)
 
         return code
@@ -181,10 +202,10 @@ class DotCoder:
                 code += ","
             else:
                 code += "}"
-            children = self.get_children_keyword(name)
+            children = self.get_children(name)
 
             if len(children) > 0:
-                new_names += self.tree[name][children]
+                new_names += children
 
         if len(new_names) > 0:
             code += self.rec_make_ranks(new_names, tabscount)
@@ -212,10 +233,12 @@ class DotCoder:
             node = self.tree[name]
             desc = ""
             _type = node['type']
+
             if 'template_type' in node and name not in self.expanded:
                 _type = node['template_type']
             # color = ""
             hat = ""
+            is_template = _type[:2] == 't/' or _type[:9] == 'template/' or 'view' in node
             if _type == 'action' or _type == 'condition':
                 for key in ['expr', 'expression', 'script']:
                     if key in node:
@@ -223,14 +246,15 @@ class DotCoder:
                 desc = desc.replace(';', ';!@')
                 desc = html.escape(desc)
                 desc = desc.replace(';!@', ';<br/>')
-            elif _type[:2] == 't/' or _type[:9] == 'template/':
+            elif is_template:
                 desc = _type
+                print(node)
                 if 'view' in node:
                     desc += '<br/>' + html.escape(yaml.dump(node['view']))
 
             if _type == 'action' or _type == 'condition':
                 color = self.color_types[_type]
-            elif _type[:2] == 't/' or _type[:9] == 'template/':
+            elif is_template:
                 if name in self.expanded:
                     color = self.color_types['expanded']
                     hat = self.hat_types['expanded']
