@@ -1,0 +1,12 @@
+.idea
+.ipynb*
+__pycache__/*
+*.py[cod]
+build/*
+dist/*
+abtmui*
+*~
+~                                                                                                                                                                                                                                                                                      
+~                                                                                                                                                                                                                                                                                      
+~                                                                                                                                                                                                                                                                                      
+~                                                   

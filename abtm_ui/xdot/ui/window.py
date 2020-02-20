@@ -36,7 +36,6 @@ from gi.repository import Gdk
 # - http://mirageiv.berlios.de/
 # - http://comix.sourceforge.net/
 
-from . import actions
 from ..dot.lexer import ParseError
 from ..dot.parser import XDotParser
 from . import animation
@@ -599,7 +598,7 @@ class DotWindow(Gtk.Window):
 
         vbox.pack_start(self.dotwidget, True, True, 0)
 
-        self.last_open_dir = "."
+        self.last_open_dir = ""
 
         self.set_focus(self.dotwidget)
 

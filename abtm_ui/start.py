@@ -1,4 +1,4 @@
-from abtm.abtm_app import ABTMApp
+from abtm_ui.abtm.abtm_app import ABTMApp
 import time
 
 if __name__ == '__main__':

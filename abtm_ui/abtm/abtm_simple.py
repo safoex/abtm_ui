@@ -1,6 +1,7 @@
 from ruamel import yaml
 import html
-
+import copy
+from ruamel.yaml.compat import StringIO
 
 class DotCoder:
     def __init__(self):
@@ -41,7 +42,8 @@ class DotCoder:
         self.view_params = {
             'compact': False,
             'states' : False,
-            'details': False
+            'details': False,
+            'names': False
         }
         self.state_colors = ['red', 'green', 'black', 'grey']
 
@@ -62,6 +64,9 @@ class DotCoder:
                               </table>
                           >
                       """]
+        self.yaml2 = yaml.YAML()
+        self.yaml2.indent(mapping=2, sequence=2, offset=0)
+        self.string_IO = StringIO()
 
     def get_label_template(self, expr=False, state_word=False):
         return self.label[0] + (self.label[1] if expr else "") + (self.label[2] if state_word else "") + self.label[-1]
@@ -216,7 +221,7 @@ class DotCoder:
         lbl = self.get_label_template(len(expr) > 0, state_word)
         state = self.states[name]
         state_word = self.state_names[state]
-        return lbl.replace('##name', name) \
+        return lbl.replace('##name', name if self.view_params['names'] else " ") \
             .replace('##hat', hat) \
             .replace('##bgcolor', bgcolor) \
             .replace('##state', self.state_colors[state]) \
@@ -248,9 +253,16 @@ class DotCoder:
                 desc = desc.replace(';!@', ';<br/>')
             elif is_template:
                 desc = _type
-                print(node)
                 if 'view' in node:
-                    desc += '<br/>' + html.escape(yaml.dump(node['view']))
+                    view = copy.deepcopy(node['view'])
+                    if 'children' in node['view']:
+                        view.pop('children')
+                    ss = StringIO()
+                    self.yaml2.dump(view, ss)
+                    s = ss.getvalue()
+                    html.escape(s)
+                    s = s.replace('\n', '<br/>')
+                    desc += '<br/>' + s
 
             if _type == 'action' or _type == 'condition':
                 color = self.color_types[_type]

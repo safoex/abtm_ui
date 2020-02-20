@@ -1,14 +1,14 @@
 import gi
-
 gi.require_version('Gtk', '3.0')
 
 from gi.repository import Gtk
 
-import xdot
+from abtm_ui.definitions import ROOT_DIR
 
+from abtm_ui import xdot
 
-import abtm.abtm_simple
-import abtm.json_viewer
+import abtm_ui.abtm.abtm_simple
+import abtm_ui.abtm.json_viewer
 from ruamel import yaml
 import roslibpy
 from threading import Lock
@@ -17,7 +17,7 @@ from threading import Lock
 class ABTMDotWidget(xdot.DotWidget):
     def __init__(self, runtime=False):
         xdot.DotWidget.__init__(self)
-        self.dc = abtm.abtm_simple.DotCoder()
+        self.dc = abtm_ui.abtm.abtm_simple.DotCoder()
         self.runtime = runtime
         # self.dotwidget.connect('clicked', self.on_click)
 
@@ -33,7 +33,7 @@ class ABTMDotWidget(xdot.DotWidget):
 class ABTMApp:
     def __init__(self, rosparams=None, glade_file=None):
         self.rosparams = rosparams or {'host': 'localhost', 'port': 9090}
-        self.glade_file = glade_file or "abtm/abtm.glade"
+        self.glade_file = glade_file or ROOT_DIR + "/abtm/abtm.glade"
         self.vars = {}
         self.mutex = Lock()
         self.is_now_correct = False
@@ -46,7 +46,7 @@ class ABTMApp:
         self.window.set_default_size(900, 800)
         self.window.set_title('A-B-T-M')
         self.tree_widget = ABTMDotWidget()
-        self.memory_widget = abtm.json_viewer.JSONViewerBox()
+        self.memory_widget = abtm_ui.abtm.json_viewer.JSONViewerBox()
 
         self.tree_box = self.tab_widget('TreeBox', self.tree_widget)
         self.memory_box = self.tab_widget('MemoryBox', self.memory_widget)
@@ -91,7 +91,7 @@ class ABTMApp:
 
     def vars_view_refresh(self):
         self.memory_widget.model.clear()
-        abtm.json_viewer.walk_tree(self.memory_widget.data, self.memory_widget.model)
+        abtm_ui.abtm.json_viewer.walk_tree(self.memory_widget.data, self.memory_widget.model)
         self.memory_widget.tree.set_model(self.memory_widget.model)
 
     def on_tree(self, message):
@@ -126,7 +126,7 @@ class ABTMApp:
         self.buttons['open'] = self.builder.get_object('open')
         self.buttons['open'].connect('clicked', self.on_file)
 
-        tick_btns = ['compact', 'details', 'states']
+        tick_btns = ['compact', 'details', 'states', 'names']
         for btn in tick_btns:
             self.buttons[btn] = self.builder.get_object('t_' + btn)
             self.buttons[btn].connect('toggled', self.get_tick_button_cb(btn))
@@ -151,7 +151,7 @@ class ABTMApp:
             self.builder.get_object('choosed-file').set_text(dlg.get_filename())
         dlg.destroy()
 
-    def setup_all(self, with_ros=True, icon="abtm/abtm.png"):
+    def setup_all(self, with_ros=True, icon=ROOT_DIR + "/abtm/abtm.png"):
         self.build_gtk()
         if with_ros:
             self.setup_ros()
