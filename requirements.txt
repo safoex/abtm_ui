@@ -1,3 +1,5 @@
 ruamel.yaml>=0.16.6
 xdot
 roslibpy>=0.7.1
+pygobject
+pycairo
