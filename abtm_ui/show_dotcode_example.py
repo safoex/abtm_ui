@@ -123,6 +123,9 @@ if __name__ == '__main__':
 
     time.sleep(0.1)
 
+    with open("saved_nodes_find.yaml") as example:
+        yml = example.read()
+
     msg = {'data': yml}
 
     app.on_tree(msg)

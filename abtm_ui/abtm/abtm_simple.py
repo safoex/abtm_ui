@@ -43,9 +43,10 @@ class DotCoder:
             'compact': False,
             'states' : False,
             'details': False,
-            'names': False
+            'names': False,
+            'autoexpand': False
         }
-        self.state_colors = ['red', 'green', 'black', 'grey']
+        self.state_colors = ['#3283a8', 'green', 'red', 'grey']
 
         self.label = ["""
                         <
@@ -67,6 +68,7 @@ class DotCoder:
         self.yaml2 = yaml.YAML()
         self.yaml2.indent(mapping=2, sequence=2, offset=0)
         self.string_IO = StringIO()
+        self.excluded = set()
 
     def get_label_template(self, expr=False, state_word=False):
         return self.label[0] + (self.label[1] if expr else "") + (self.label[2] if state_word else "") + self.label[-1]
@@ -74,9 +76,21 @@ class DotCoder:
     def set_states(self, changed_states):
         ch = yaml.safe_load(changed_states)
         # ch = yaml.safe_load(ch['data'])
+        # if self.view_params['autoexpand']:
+
+
         for _n in ch:
             n = _n[9:]
             self.states[n] = ch[_n]
+
+        # for n in list(self.expanded.keys()):
+        #     if self.states[n] == 3:
+        #         self.hide_templated_node(n)
+        #
+        # for n, s in self.states.items():
+        #     if s == 0:
+        #         self.expand_templated_node(n)
+
 
     def get_root(self):
         for z in self.tree:
@@ -142,18 +156,25 @@ class DotCoder:
         if 'view_children' not in self.tree[name] and 'children' in self.tree[name] and not (
                 self.tree[name]['children'] is None) and len(self.tree[name]['children']) > 0:
             children = 'children'
+        children = [c for c in children if c not in self.excluded]
         return children
 
     def get_children(self, name):
         children = []
         if 'view' in self.tree[name] and 'children' in self.tree[name]['view']:
-            return self.tree[name]['view']['children']
+            return [c for c in self.tree[name]['view']['children'] if c not in self.excluded]
         if 'view_children' in self.tree[name] and not (self.tree[name]['view_children'] is None) and len(
                 self.tree[name]['view_children']) > 0:
             children = self.tree[name]['view_children']
         if 'view_children' not in self.tree[name] and 'children' in self.tree[name] and not (
                 self.tree[name]['children'] is None) and len(self.tree[name]['children']) > 0:
             children = self.tree[name]['children']
+        children = [c for c in children if c not in self.excluded]
+        return children
+
+    def _test_children(self, name):
+        children = self.tree[name]['children']
+        children = [c for c in children if c not in self.excluded]
         return children
 
     def get_next_cluster_name(self):
@@ -228,13 +249,38 @@ class DotCoder:
             .replace('##expr', expr) \
             .replace('##wstateword', state_word)
 
+    def _test_for_exclusion(self, name, node):
+        if node['type'] == 'condition' and (node['expression'] == 'True' or node['expression'] is True):
+            return True
+        if (node['type'] == 'condition' or node['type'] == 'action') and name[-7:] in ['inished', 'started']:
+            return True
+        if node['type'] in ['sequence', 'selector', 'fallback', 'skipper'] and len(self._test_children(name)) == 0:
+            return True
+        return False
+
+    def clean_up_tree(self):
+        while any([self._test_for_exclusion(name, node) and name not in self.excluded for name, node in self.tree.items()]):
+            for name, node in self.tree.items():
+                if self._test_for_exclusion(name, node):
+                    self.excluded.add(name)
+        for name, node in self.tree.items():
+            if node['type'] == 'skipper' and name[-3:-1] == 'gc':
+                node['children'] = []
+                node['view']['children'] = []
+                node['view_children'] = []
+                node['type'] = 'condition'
+                node['expression'] = node['var']
+
     def get_dotcode(self, runtime=False):
         code = ""
         code += "digraph g {\n"
         code += "node [shape=rectangle, style=filled, color=white];\n"
         self.root = self.get_root()
         self.node_dotcodes = {}
+        self.clean_up_tree()
         for name in self.tree:
+            if name in self.excluded:
+                continue
             node = self.tree[name]
             desc = ""
             _type = node['type']
@@ -504,5 +550,6 @@ test_reset_action: {script: __STATE__test = RUNNING;, type: action}
     """
 
     d = DotCoder()
-    d.tree_from_yaml(yaml_code3)
+    with open("../saved_nodes_find.yaml") as example:
+        d.tree_from_yaml(yaml_code3)
     print(d.get_dotcode())

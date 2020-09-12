@@ -27,7 +27,10 @@ class ABTMDotWidget(xdot.DotWidget):
             self.dc.hide_templated_node(name)
         else:
             self.dc.expand_templated_node(name)
-        self.set_dotcode(bytes(self.dc.get_dotcode(self.runtime), 'utf-8'))
+        dotcode = self.dc.get_dotcode(self.runtime)
+        self.set_dotcode(bytes(dotcode, 'utf-8'))
+        with open('quick_dotcode_out.txt', 'w') as f:
+            print(dotcode, file=f)
 
 
 class ABTMApp:
@@ -126,7 +129,7 @@ class ABTMApp:
         self.buttons['open'] = self.builder.get_object('open')
         self.buttons['open'].connect('clicked', self.on_file)
 
-        tick_btns = ['compact', 'details', 'states', 'names']
+        tick_btns = ['compact', 'details', 'states', 'names', 'autoexpand']
         for btn in tick_btns:
             self.buttons[btn] = self.builder.get_object('t_' + btn)
             self.buttons[btn].connect('toggled', self.get_tick_button_cb(btn))
